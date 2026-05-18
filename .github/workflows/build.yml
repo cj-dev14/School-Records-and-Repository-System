@@ -1,0 +1,37 @@
+name: Build JAR
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build JAR
+        run: |
+          mkdir -p temp
+          cd temp
+          jar xf ../mysql-connector-j-9.7.0.jar
+          cd ..
+          javac -cp mysql-connector-j-9.7.0.jar lab4/lab4.java
+          cd temp
+          mkdir -p lab4
+          cp ../lab4/*.class lab4/
+          echo "Main-Class: lab4.lab4" > META-INF/MANIFEST.MF
+          echo "" >> META-INF/MANIFEST.MF
+          jar cfm ../lab4_new.jar META-INF/MANIFEST.MF .
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v3
+        with:
+          name: lab4_new
+          path: lab4_new.jar
